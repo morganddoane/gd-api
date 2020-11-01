@@ -6,18 +6,26 @@ import { IContext } from './auth/Context';
 import { UserResolvers } from './GraphQL/User/UserResolvers';
 
 import mongoose from 'mongoose';
-
 import express from 'express';
+import { CarrierResolvers } from './GraphQL/Carrier/CarrierResolvers';
+import { PackageResolvers } from './GraphQL/Package/PackageResolvers';
+import { ShipServiceResolvers } from './GraphQL/ShipService/ShipServiceResolvers';
+
 (async () => {
     try {
         const app = express();
 
-        mongoose.connect('mongodb://localhost:27017/gaildoane', {
+        mongoose.connect(process.env.DB_URL, {
             useNewUrlParser: true,
         });
 
         const schema = await buildSchema({
-            resolvers: [UserResolvers],
+            resolvers: [
+                CarrierResolvers,
+                PackageResolvers,
+                ShipServiceResolvers,
+                UserResolvers,
+            ],
             authChecker: authChecker,
         });
 
@@ -39,7 +47,7 @@ import express from 'express';
         server.applyMiddleware({ app });
 
         app.listen({ port: env.PORT }, () =>
-            console.log(`Server live on port ${env.PORT}`)
+            console.log(`Server live on port ${env.PORT} 🚀`)
         );
     } catch (error) {
         console.log(error);
