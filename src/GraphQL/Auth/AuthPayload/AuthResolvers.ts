@@ -2,7 +2,7 @@ import { IContext } from '@src/auth/Context';
 import { UserModel } from '@src/services/Mongo/User';
 import { UserInputError } from 'apollo-server-express';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
-import { checkPassword, generatePasswordHash } from '@src/utils';
+import { checkPassword } from '@src/utils';
 import { AuthPayload } from '@src/GraphQL/Auth/AuthPayload/AuthPayload';
 import { User } from '@src/GraphQL/User/User';
 
@@ -14,7 +14,6 @@ export class UserResolvers {
         nullable: true,
     })
     async getUser(@Ctx() context: IContext): Promise<User> {
-        console.log(context);
         if (context.user) return context.user;
         return null;
     }

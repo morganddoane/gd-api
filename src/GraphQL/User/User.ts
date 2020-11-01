@@ -2,7 +2,6 @@ import { DocumentType } from '@typegoose/typegoose';
 import { Field, ID, ObjectType } from 'type-graphql';
 
 import { UserDocumentClass } from '../../services/Mongo/User';
-import { IJWT } from '../Auth/AuthPayload/AuthPayload';
 import jwt from 'jsonwebtoken';
 import { addDays, getUnixTime } from 'date-fns';
 

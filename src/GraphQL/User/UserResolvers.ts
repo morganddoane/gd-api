@@ -1,25 +1,24 @@
 import { IContext } from '@src/auth/Context';
 import { UserModel } from '@src/services/Mongo/User';
-import { UserInputError } from 'apollo-server-express';
+import { UserInputError, ForbiddenError } from 'apollo-server-express';
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { User } from './User';
-import { CreateUserInput } from './UserInputs';
+import { CreateUserInput, EditUserInput } from './UserInputs';
 import { checkPassword, generatePasswordHash } from '@src/utils';
 import { AuthPayload } from '../Auth/AuthPayload/AuthPayload';
 
 @Resolver(() => User)
 export class UserResolvers {
-    // Get user from context
+    // Gets user from context, which comes from JWT in the headers.
+    @Authorized()
     @Query(() => User, {
-        description: "Get's the user from the context.",
+        description: 'Returns logged in user based on your token.',
         nullable: true,
     })
-    async getUser(@Ctx() context: IContext): Promise<User> {
+    async getLoggedInUser(@Ctx() context: IContext): Promise<User> {
         if (context.user) {
-            console.log('from context');
             return context.user;
         } else {
-            console.log('else');
             return null;
         }
     }
@@ -27,13 +26,13 @@ export class UserResolvers {
     // Create a user. Admin only.
     @Authorized('admin')
     @Mutation(() => User, {
-        description: 'Creates and returns a new user. Must be an admin.',
+        description:
+            'Creates and returns a new user. Must be an admin to do so.',
     })
     async createUser(
         // @Authorized(['admin')
         @Arg('data')
-        newUserData: CreateUserInput,
-        @Ctx() context: IContext
+        newUserData: CreateUserInput
     ): Promise<User> {
         const duplicateUsernames = await UserModel.find({
             username: newUserData.username,
@@ -53,12 +52,32 @@ export class UserResolvers {
         return User.createFromDocument(newUser);
     }
 
-    // Login user.
-    @Mutation(() => AuthPayload, {
-        description: 'Login a user and apply to context.',
-    })
-    async loginUser(
+    // Edit user. *Self* or admin only.
+    @Authorized()
+    @Mutation(() => User)
+    async editUser(
         @Ctx() context: IContext,
+        @Arg('data') data: EditUserInput,
+        @Arg('id') id: string
+    ): Promise<User> {
+        const authorized =
+            id === context.user.id || context.user.admin === true;
+
+        if (!authorized)
+            throw new ForbiddenError(
+                "Sorry! You don't have permission to edit this user."
+            );
+
+        const edit = await UserModel.findByIdAndUpdate(id, data, { new: true });
+
+        if (!edit) throw new Error('Ahh man. Failed to update user.');
+
+        return User.createFromDocument(edit);
+    }
+
+    // Login user.
+    @Mutation(() => AuthPayload)
+    async loginUser(
         @Arg('password') password: string,
         @Arg('username', { nullable: true }) username?: string,
         @Arg('email', { nullable: true }) email?: string

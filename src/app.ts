@@ -6,7 +6,6 @@ import { IContext } from './auth/Context';
 import { UserResolvers } from './GraphQL/User/UserResolvers';
 
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
 
 import express from 'express';
 (async () => {
