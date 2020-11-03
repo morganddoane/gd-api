@@ -10,6 +10,8 @@ import express from 'express';
 import { CarrierResolvers } from './GraphQL/Carrier/CarrierResolvers';
 import { PackageResolvers } from './GraphQL/Package/PackageResolvers';
 import { ShipServiceResolvers } from './GraphQL/ShipService/ShipServiceResolvers';
+import { RateResolver } from './GraphQL/Rate/RateResolvers';
+import { registerEnums } from './GraphQL/Enums';
 
 (async () => {
     try {
@@ -19,10 +21,12 @@ import { ShipServiceResolvers } from './GraphQL/ShipService/ShipServiceResolvers
             useNewUrlParser: true,
         });
 
+        registerEnums();
         const schema = await buildSchema({
             resolvers: [
                 CarrierResolvers,
                 PackageResolvers,
+                RateResolver,
                 ShipServiceResolvers,
                 UserResolvers,
             ],

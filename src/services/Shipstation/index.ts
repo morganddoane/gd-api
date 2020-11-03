@@ -1,5 +1,7 @@
 import { Carrier } from '@src/GraphQL/Carrier/Carrier';
 import { Package } from '@src/GraphQL/Package/Package';
+import { Rate } from '@src/GraphQL/Rate/Rate';
+import { RateInput } from '@src/GraphQL/Rate/RateInput';
 import { ShipService } from '@src/GraphQL/ShipService/ShipService';
 import {
     RESTDataSource,
@@ -52,6 +54,17 @@ export class ShipstationClass extends RESTDataSource {
                 service[key] = s[key];
             });
             return service;
+        });
+    }
+
+    async getRates(data: RateInput): Promise<Rate[]> {
+        const res = await this.post('/shipments/getrates', { ...data });
+        return res.map((r) => {
+            const rate = new Rate();
+            Object.keys(r).forEach((key) => {
+                rate[key] = r[key];
+            });
+            return rate;
         });
     }
 }
