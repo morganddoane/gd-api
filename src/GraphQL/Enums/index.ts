@@ -15,6 +15,11 @@ export function registerEnums(): void {
         name: 'Country',
         description: '2 letter ISO country code.',
     });
+
+    registerEnumType(EventStatus, {
+        name: 'EventStatus',
+        description: 'Eventbrite event status.',
+    });
 }
 
 export enum WeightUnit {
@@ -26,6 +31,15 @@ export enum WeightUnit {
 export enum DimensionUnit {
     inches = 'inches',
     centimeters = 'centimeters',
+}
+
+export enum EventStatus {
+    draft = 'draft',
+    live = 'live',
+    started = 'started',
+    ended = 'ended',
+    completed = 'completed',
+    canceled = 'canceled',
 }
 
 export enum Country {
