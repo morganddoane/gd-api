@@ -13,6 +13,7 @@ import { ShipServiceResolvers } from './GraphQL/ShipService/ShipServiceResolvers
 import { RateResolver } from './GraphQL/Rate/RateResolvers';
 import { registerEnums } from './GraphQL/Enums';
 import { EventResolvers } from './GraphQL/Event/EventResolvers';
+import { ShipmentResolvers } from './GraphQL/Shipment/ShipmentResolvers';
 
 (async () => {
     try {
@@ -20,6 +21,7 @@ import { EventResolvers } from './GraphQL/Event/EventResolvers';
 
         mongoose.connect(process.env.DB_URL, {
             useNewUrlParser: true,
+            useUnifiedTopology: true,
         });
 
         registerEnums();
@@ -29,6 +31,7 @@ import { EventResolvers } from './GraphQL/Event/EventResolvers';
                 EventResolvers,
                 PackageResolvers,
                 RateResolver,
+                ShipmentResolvers,
                 ShipServiceResolvers,
                 UserResolvers,
             ],
@@ -38,9 +41,9 @@ import { EventResolvers } from './GraphQL/Event/EventResolvers';
         const server = new ApolloServer({
             schema,
             context: async ({ req }) => {
-                const user = await getUserFromToken(
-                    req.headers.token as string
-                );
+                const token = req.headers.authorization || '';
+
+                const user = await getUserFromToken(token as string);
 
                 const context: IContext = {
                     user: user,
@@ -50,7 +53,22 @@ import { EventResolvers } from './GraphQL/Event/EventResolvers';
             },
         });
 
-        server.applyMiddleware({ app });
+        server.applyMiddleware({
+            app,
+            cors: {
+                origin: function (origin, callback) {
+                    if (
+                        origin === undefined ||
+                        env.CORS_WHITELIST.includes(origin)
+                    ) {
+                        callback(null, true);
+                    } else {
+                        callback(new Error('Blocked by CORS'));
+                    }
+                },
+                credentials: true,
+            },
+        });
 
         app.listen({ port: env.PORT }, () =>
             console.log(`Server live on port ${env.PORT} 🚀`)

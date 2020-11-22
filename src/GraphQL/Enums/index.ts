@@ -1,3 +1,4 @@
+import { ShipmentStatus } from '@src/services/Mongo/Shipment';
 import { registerEnumType } from 'type-graphql';
 
 export function registerEnums(): void {
@@ -19,6 +20,11 @@ export function registerEnums(): void {
     registerEnumType(EventStatus, {
         name: 'EventStatus',
         description: 'Eventbrite event status.',
+    });
+
+    registerEnumType(ShipmentStatus, {
+        name: 'ShipmentStatus',
+        description: 'Shipment status.',
     });
 }
 

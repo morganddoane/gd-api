@@ -3,7 +3,7 @@ import { Field, ID, ObjectType } from 'type-graphql';
 
 import { UserDocumentClass } from '../../services/Mongo/User';
 import jwt from 'jsonwebtoken';
-import { addDays, getUnixTime } from 'date-fns';
+import { addMinutes, addSeconds, getUnixTime } from 'date-fns';
 
 @ObjectType()
 export class User {
@@ -41,12 +41,16 @@ export class User {
         return created;
     }
 
-    public generateJWT(): string {
+    public jwtExpiration(date: Date): number {
+        return getUnixTime(addMinutes(date, 25));
+    }
+
+    public generateJWT(date: Date): string {
         return jwt.sign(
             {
                 iss: 'gaildoaneoriginals',
                 iat: getUnixTime(new Date()),
-                exp: getUnixTime(addDays(new Date(), 1)),
+                exp: this.jwtExpiration(date),
                 user: this,
             },
             process.env.SECRET_KEY

@@ -4,7 +4,7 @@ import { UserInputError, ForbiddenError } from 'apollo-server-express';
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { User } from './User';
 import { CreateUserInput, EditUserInput } from './UserInputs';
-import { checkPassword, generatePasswordHash } from '@src/utils';
+import { checkPassword, generatePasswordHash, sleep } from '@src/utils';
 import { AuthPayload } from '../Auth/AuthPayload/AuthPayload';
 
 @Resolver(() => User)
@@ -15,7 +15,7 @@ export class UserResolvers {
         description: 'Returns logged in user based on your token.',
         nullable: true,
     })
-    async getLoggedInUser(@Ctx() context: IContext): Promise<User> {
+    async loggedInUser(@Ctx() context: IContext): Promise<User> {
         if (context.user) {
             return context.user;
         } else {
@@ -79,38 +79,32 @@ export class UserResolvers {
     @Mutation(() => AuthPayload)
     async loginUser(
         @Arg('password') password: string,
-        @Arg('username', { nullable: true }) username?: string,
-        @Arg('email', { nullable: true }) email?: string
+        @Arg('method') method: string
     ): Promise<AuthPayload> {
-        if (!username && !email)
-            throw new UserInputError('Please provide a username or email.');
-
-        if (username && email)
-            throw new UserInputError(
-                'Please provide either a username or an email, not both.'
-            );
-
-        const loginMethod: { key: string; value: string } = {
-            key: username ? 'username' : 'email',
-            value: username ? username : email,
-        };
-
-        const foundUser = await UserModel.findOne({
-            [loginMethod.key]: loginMethod.value,
+        const foundUsers = await UserModel.find({
+            $or: [{ username: method }, { email: method }],
         });
 
-        if (!foundUser)
+        const found = foundUsers[0];
+
+        if (!found)
             throw new UserInputError(
-                `Oh boy. We don't know recognize that ${
-                    email ? 'email' : 'username'
-                }.`
+                "Oh boy. We don't recognize that email or username."
             );
 
-        if (!checkPassword(password, foundUser.password))
+        if (!(await checkPassword(password, found.password)))
             throw new UserInputError("Big woof. That's the wrong password.");
 
-        const loggedInUser = User.createFromDocument(foundUser);
+        const loggedInUser = User.createFromDocument(found);
 
-        return { user: loggedInUser, token: loggedInUser.generateJWT() };
+        const expirationOrigin = new Date();
+
+        await sleep(2200);
+
+        return {
+            user: loggedInUser,
+            token: loggedInUser.generateJWT(expirationOrigin),
+            expiration: loggedInUser.jwtExpiration(expirationOrigin),
+        };
     }
 }

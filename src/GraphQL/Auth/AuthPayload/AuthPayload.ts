@@ -8,6 +8,9 @@ export class AuthPayload {
 
     @Field(() => User)
     user: User;
+
+    @Field()
+    expiration: number;
 }
 
 export interface IJWT {
