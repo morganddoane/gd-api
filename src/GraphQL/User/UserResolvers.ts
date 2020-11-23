@@ -99,8 +99,6 @@ export class UserResolvers {
 
         const expirationOrigin = new Date();
 
-        await sleep(2200);
-
         return {
             user: loggedInUser,
             token: loggedInUser.generateJWT(expirationOrigin),

@@ -34,27 +34,6 @@ export class ShipmentResolvers {
         return Shipment.createFromDocument(res);
     }
 
-    @Authorized()
-    @Mutation(() => Boolean)
-    async loadShipments(): Promise<boolean> {
-        const docs = [];
-
-        for (const ship of shipmentData) {
-            const res = await ShipmentModel.create({
-                attendee: ship.attendee,
-                shipmentId: ship.shipmentId,
-                labelData: ship.labelData,
-                status: ship.status as ShipmentStatus,
-                processedBy: ship.processedBy.$oid,
-            });
-
-            docs.push(res);
-        }
-
-        if (docs.length > 0) return true;
-        else return false;
-    }
-
     @FieldResolver(() => User)
     async processedBy(@Root() shipment: Shipment): Promise<User> {
         const res = await UserModel.findById(shipment.processedById);

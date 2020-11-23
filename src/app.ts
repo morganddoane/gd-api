@@ -14,6 +14,7 @@ import { RateResolver } from './GraphQL/Rate/RateResolvers';
 import { registerEnums } from './GraphQL/Enums';
 import { EventResolvers } from './GraphQL/Event/EventResolvers';
 import { ShipmentResolvers } from './GraphQL/Shipment/ShipmentResolvers';
+import { AttendeeResolvers } from './GraphQL/Attendee/AttendeeResolvers';
 
 (async () => {
     try {
@@ -27,6 +28,7 @@ import { ShipmentResolvers } from './GraphQL/Shipment/ShipmentResolvers';
         registerEnums();
         const schema = await buildSchema({
             resolvers: [
+                AttendeeResolvers,
                 CarrierResolvers,
                 EventResolvers,
                 PackageResolvers,

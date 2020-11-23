@@ -25,6 +25,9 @@ export class EventTime {
 @ObjectType()
 export class Event {
     @Field()
+    id: string;
+
+    @Field()
     name: MultiPartText;
 
     @Field({ nullable: true })

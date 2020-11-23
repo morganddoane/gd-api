@@ -1,4 +1,5 @@
 import { Field, ObjectType } from 'type-graphql';
+import { AttendeeAddress } from '../AttendeeAddress/AttendeeAdress';
 
 @ObjectType()
 export class AttendeeProfile {
@@ -43,4 +44,7 @@ export class AttendeeProfile {
 
     @Field({ nullable: true })
     cell_phone?: string;
+
+    @Field(() => AttendeeAddress, { nullable: true })
+    addresses?: AttendeeAddress;
 }

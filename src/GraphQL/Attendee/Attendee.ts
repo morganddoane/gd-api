@@ -1,10 +1,13 @@
 import { Field, ObjectType } from 'type-graphql';
-import { AttendeeAddress } from '../AttendeeAdress/AttendeeAdress';
+import { AttendeeAddress } from '../AttendeeAddress/AttendeeAdress';
 import { AttendeeCost } from '../AttendeeCost/AttendeeCost';
 import { AttendeeProfile } from '../AttendeeProfile/AttendeeProfile';
 
 @ObjectType()
 export class Attendee {
+    @Field({ nullable: true })
+    id?: string;
+
     @Field({ nullable: true })
     created?: Date;
 
@@ -28,9 +31,6 @@ export class Attendee {
 
     @Field(() => AttendeeProfile, { nullable: true })
     profile?: AttendeeProfile;
-
-    @Field(() => AttendeeAddress, { nullable: true })
-    addresses?: AttendeeAddress;
 
     // @Field()
     // questions	attendee-questions	(Optional) Custom questions for the Attendee.

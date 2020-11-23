@@ -5,6 +5,8 @@ import {
     RequestOptions,
     HTTPCache,
 } from 'apollo-datasource-rest';
+import { parse } from 'date-fns';
+import { IAttendee } from './types/Attendee_Eventbrite';
 
 export class EventbriteClass extends RESTDataSource {
     constructor() {
@@ -37,8 +39,8 @@ export class EventbriteClass extends RESTDataSource {
         }
 
         return records.map((e) => {
-            console.log(e);
             const event = new Event();
+            event.id = e.id;
             event.name = {
                 text: e.name.text,
                 html: e.name.html,
@@ -71,10 +73,18 @@ export class EventbriteClass extends RESTDataSource {
         });
     }
 
-    async getEventAttendees(eventId: string): Promise<Attendee> {
-        const res = await this.get(`events/${eventId}/attendees`);
+    async getEventAttendees(eventId: string): Promise<Attendee[]> {
+        const res: { attendees: IAttendee[] } = await this.get(
+            `events/${eventId}/attendees`
+        );
 
-        return res.attendees;
+        return res.attendees.map((att) => {
+            return {
+                ...att,
+                created: new Date(att.created),
+                changed: new Date(att.changed),
+            };
+        });
     }
 
     async getEventById(eventId: string): Promise<Event> {

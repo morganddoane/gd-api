@@ -42,7 +42,7 @@ export class User {
     }
 
     public jwtExpiration(date: Date): number {
-        return getUnixTime(addMinutes(date, 25));
+        return getUnixTime(addMinutes(date, 180));
     }
 
     public generateJWT(date: Date): string {
