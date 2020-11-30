@@ -73,4 +73,7 @@ export class Attendee {
 
     @Field({ nullable: true })
     delivery_method?: string;
+
+    @Field({ nullable: true })
+    note?: string;
 }
